@@ -2,148 +2,174 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>Glass Switch 클릭커 게임 (준호 버전)</title>
+  <title>Glass Switch 클릭커 (준호 스타일 심플)</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 40px auto;
-      max-width: 600px;
-      background: #f0f8ff;
+      font-family: 'Nanum Gothic', sans-serif;
+      background: #e0f7fa;
       color: #222;
+      margin: 0; padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      user-select: none;
     }
     #glass-switch {
-      font-size: 3rem;
-      background: linear-gradient(135deg, #00bcd4, #2196f3);
-      border: none;
-      border-radius: 15px;
-      color: white;
-      padding: 40px 80px;
-      margin: 20px 0;
+      position: relative;
+      width: 180px;
+      height: 90px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 45px;
+      border: 2px solid rgba(255,255,255,0.5);
+      box-shadow: 0 4px 15px rgba(255,255,255,0.7);
+      color: #007bbd;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 90px;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(33,150,243,0.6);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       user-select: none;
-      transition: transform 0.1s ease;
+      margin-bottom: 15px;
     }
-    #glass-switch:active {
-      transform: scale(0.95);
+    #glass-switch:hover {
+      animation: shake 0.35s ease-in-out;
+      transform: scale(1.15);
+      box-shadow: 0 8px 25px rgba(0,123,189,0.9);
     }
-    .stats {
-      font-size: 1.5rem;
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px) rotate(-4deg); }
+      50% { transform: translateX(6px) rotate(4deg); }
+      75% { transform: translateX(-6px) rotate(-3deg); }
+    }
+    #points {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      user-select: text;
+      color: #007bbd;
+      text-shadow: 0 0 8px #00bcd4;
+    }
+    #shop-toggle-btn {
+      background: #007bbd;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
       margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,123,189,0.6);
+      user-select: none;
     }
-    .items {
-      margin-top: 30px;
-      text-align: left;
+    #shop-toggle-btn:hover {
+      background: #005f86;
+    }
+    #shop-modal {
+      width: 360px;
+      max-height: 400px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      overflow-y: auto;
+      padding: 15px 20px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
     }
     .item {
-      margin-bottom: 10px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: white;
+      justify-content: space-between;
+      background: #e0f7fa;
+      border-radius: 12px;
       padding: 10px 15px;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: inset 0 0 8px rgba(0,123,189,0.2);
+      font-size: 1.1rem;
+    }
+    .item .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .item img {
+      width: 38px;
+      height: 38px;
+      user-select: none;
+    }
+    .item .info {
+      flex: 1;
     }
     .item button {
-      font-size: 1rem;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 6px;
+      background: #007bbd;
       border: none;
-      background: #2196f3;
       color: white;
-      transition: background 0.3s ease;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
     }
     .item button:disabled {
       background: #bbb;
       cursor: not-allowed;
     }
+    .item button:hover:not(:disabled) {
+      background: #005f86;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Glass Switch 클릭커 게임</h1>
-  <div class="stats">
-    <div>현재 포인트: <span id="points">0</span></div>
-    <div>클릭당 증가량: <span id="clickPower">1</span></div>
-    <div>초당 자동 증가량: <span id="cps">0</span></div>
-  </div>
+  <h1>Glass Switch 클릭커</h1>
 
-  <button id="glass-switch">Glass Switch</button>
+  <button id="glass-switch" title="클릭해서 포인트 획득!">Glass Switch</button>
 
-  <div class="items">
-    <h2>아이템 상점</h2>
-    <div class="item">
-      <span>Cursor - 클릭 증가량 +1 (가격: <span id="price1">25</span>)</span>
-      <button id="buy1">구매</button>
-    </div>
-    <div class="item">
-      <span>Auto Glass - 초당 +1 (가격: <span id="price2">100</span>)</span>
-      <button id="buy2">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Farm - 초당 +10 (가격: <span id="price3">500</span>)</span>
-      <button id="buy3">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Mine - 초당 +100 (가격: <span id="price4">6500</span>)</span>
-      <button id="buy4">구매</button>
-    </div>
-    <div class="item">
-      <span>Silver Cursor - 클릭 증가량 +2000 (가격: <span id="price5">150000</span>)</span>
-      <button id="buy5">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Factory - 초당 +15000 (가격: <span id="price6">2000000</span>)</span>
-      <button id="buy6">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Lab - 초당 +250000 (가격: <span id="price7">20000000</span>)</span>
-      <button id="buy7">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Temple - 초당 +5,000,000 (가격: <span id="price8">125000000</span>)</span>
-      <button id="buy8">구매</button>
-    </div>
-    <div class="item">
-      <span>Gold Cursor - 클릭 증가량 +2,000,000 (가격: <span id="price9">200000000</span>)</span>
-      <button id="buy9">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass Rocket - 초당 +100,000,000 (가격: <span id="price10">5000000000</span>)</span>
-      <button id="buy10">구매</button>
-    </div>
-    <div class="item">
-      <span>Glass God - 초당 +5,000,000,000 (가격: <span id="price11">100000000000</span>)</span>
-      <button id="buy11">구매</button>
-    </div>
-  </div>
+  <!-- 누적 포인트 숫자만 보이게 -->
+  <div id="points">0</div>
+
+  <button id="shop-toggle-btn">상점 열기 / 닫기</button>
+
+  <div id="shop-modal"></div>
 
   <script>
+    const pointsEl = document.getElementById('points');
+    const glassSwitchBtn = document.getElementById('glass-switch');
+    const shopToggleBtn = document.getElementById('shop-toggle-btn');
+    const shopModal = document.getElementById('shop-modal');
+
     let points = 0;
     let clickPower = 1;
     let cps = 0;
 
-    const pointsEl = document.getElementById('points');
-    const clickPowerEl = document.getElementById('clickPower');
-    const cpsEl = document.getElementById('cps');
-    const glassSwitchBtn = document.getElementById('glass-switch');
-
     const items = [
-      { id: 1, name: 'Cursor', type: 'click', power: 1, price: 25, priceEl: document.getElementById('price1'), btn: document.getElementById('buy1'), owned: 0 },
-      { id: 2, name: 'Auto Glass', type: 'auto', power: 1, price: 100, priceEl: document.getElementById('price2'), btn: document.getElementById('buy2'), owned: 0 },
-      { id: 3, name: 'Glass Farm', type: 'auto', power: 10, price: 500, priceEl: document.getElementById('price3'), btn: document.getElementById('buy3'), owned: 0 },
-      { id: 4, name: 'Glass Mine', type: 'auto', power: 100, price: 6500, priceEl: document.getElementById('price4'), btn: document.getElementById('buy4'), owned: 0 },
-      { id: 5, name: 'Silver Cursor', type: 'click', power: 2000, price: 150000, priceEl: document.getElementById('price5'), btn: document.getElementById('buy5'), owned: 0 },
-      { id: 6, name: 'Glass Factory', type: 'auto', power: 15000, price: 2000000, priceEl: document.getElementById('price6'), btn: document.getElementById('buy6'), owned: 0 },
-      { id: 7, name: 'Glass Lab', type: 'auto', power: 250000, price: 20000000, priceEl: document.getElementById('price7'), btn: document.getElementById('buy7'), owned: 0 },
-      { id: 8, name: 'Glass Temple', type: 'auto', power: 5000000, price: 125000000, priceEl: document.getElementById('price8'), btn: document.getElementById('buy8'), owned: 0 },
-      { id: 9, name: 'Gold Cursor', type: 'click', power: 2000000, price: 200000000, priceEl: document.getElementById('price9'), btn: document.getElementById('buy9'), owned: 0 },
-      { id: 10, name: 'Glass Rocket', type: 'auto', power: 100000000, price: 5000000000, priceEl: document.getElementById('price10'), btn: document.getElementById('buy10'), owned: 0 },
-      { id: 11, name: 'Glass God', type: 'auto', power: 5000000000, price: 100000000000, priceEl: document.getElementById('price11'), btn: document.getElementById('buy11'), owned: 0 },
+      { id: 1, name: 'Cursor', type: 'click', power: 1, price: 25, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/cursor.png' },
+      { id: 2, name: 'Auto Glass', type: 'auto', power: 1, price: 100, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/automatic.png' },
+      { id: 3, name: 'Glass Farm', type: 'auto', power: 10, price: 500, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/factory.png' },
+      { id: 4, name: 'Glass Mine', type: 'auto', power: 100, price: 6500, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/mining.png' },
+      { id: 5, name: 'Silver Cursor', type: 'click', power: 2000, price: 150000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/silver-coin.png' },
+      { id: 6, name: 'Glass Factory', type: 'auto', power: 15000, price: 2000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/industry.png' },
+      { id: 7, name: 'Glass Lab', type: 'auto', power: 250000, price: 20000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/laboratory.png' },
+      { id: 8, name: 'Glass Temple', type: 'auto', power: 5000000, price: 125000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/temple.png' },
+      { id: 9, name: 'Gold Cursor', type: 'click', power: 2000000, price: 200000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/gold-bar.png' },
+      { id: 10, name: 'Glass Rocket', type: 'auto', power: 100000000, price: 5000000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/rocket.png' },
+      { id: 11, name: 'Glass God', type: 'auto', power: 5000000000, price: 100000000000, owned: 0, icon: 'https://img.icons8.com/ios-filled/50/007bbd/god-mode.png' },
     ];
+
+    function formatNum(num) {
+      if (num < 1000) return num.toString();
+      if (num < 1_000_000) return (num/1000).toFixed(1) + 'K';
+      if (num < 1_000_000_000) return (num/1_000_000).toFixed(1) + 'M';
+      if (num < 1_000_000_000_000) return (num/1_000_000_000).toFixed(1) + 'B';
+      return (num/1_000_000_000_000).toFixed(1) + 'T';
+    }
 
     function updateButtons() {
       items.forEach(item => {
@@ -152,22 +178,46 @@
     }
 
     function updateUI() {
-      pointsEl.textContent = Math.floor(points).toLocaleString();
-      clickPowerEl.textContent = clickPower.toLocaleString();
-      cpsEl.textContent = cps.toLocaleString();
+      pointsEl.textContent = formatNum(points);
       items.forEach(item => {
-        item.priceEl.textContent = item.price.toLocaleString();
+        item.priceEl.textContent = formatNum(item.price);
       });
       updateButtons();
     }
 
-    glassSwitchBtn.addEventListener('click', () => {
-      points += clickPower;
-      updateUI();
-    });
+    // 초기 아이템 DOM 만들기
+    function createItemElement(item) {
+      const div = document.createElement('div');
+      div.className = 'item';
 
-    items.forEach(item => {
-      item.btn.addEventListener('click', () => {
+      const left = document.createElement('div');
+      left.className = 'left';
+
+      const icon = document.createElement('img');
+      icon.src = item.icon;
+      icon.alt = item.name + ' 아이콘';
+
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.textContent = `${item.name} (${item.type === 'click' ? '클릭 증가량 +'+item.power : '초당 증가량 +'+item.power}) - 가격: `;
+
+      const priceSpan = document.createElement('span');
+      priceSpan.id = `price${item.id}`;
+      priceSpan.textContent = formatNum(item.price);
+      item.priceEl = priceSpan;
+
+      info.appendChild(priceSpan);
+      left.appendChild(icon);
+      left.appendChild(info);
+      div.appendChild(left);
+
+      const btn = document.createElement('button');
+      btn.id = `buy${item.id}`;
+      btn.textContent = '구매';
+      btn.disabled = true;
+      item.btn = btn;
+
+      btn.addEventListener('click', () => {
         if (points >= item.price) {
           points -= item.price;
           item.owned++;
@@ -176,13 +226,37 @@
           } else {
             cps += item.power;
           }
-          // 가격 20% 증가
           item.price = Math.floor(item.price * 1.2);
           updateUI();
         }
       });
+
+      div.appendChild(btn);
+
+      return div;
+    }
+
+    shopToggleBtn.addEventListener('click', () => {
+      if (shopModal.style.display === 'flex') {
+        shopModal.style.display = 'none';
+      } else {
+        shopModal.style.display = 'flex';
+      }
     });
 
+    // 클릭 시 포인트 증가
+    glassSwitchBtn.addEventListener('click', () => {
+      points += clickPower;
+      updateUI();
+    });
+
+    // 상점에 아이템들 추가
+    items.forEach(item => {
+      const el = createItemElement(item);
+      shopModal.appendChild(el);
+    });
+
+    // 1초마다 자동 증가량 추가
     setInterval(() => {
       points += cps;
       updateUI();
