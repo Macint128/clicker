@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Glass Switch 클릭커 게임 (준호 버전)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px auto;
+      max-width: 600px;
+      background: #f0f8ff;
+      color: #222;
+    }
+    #glass-switch {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #00bcd4, #2196f3);
+      border: none;
+      border-radius: 15px;
+      color: white;
+      padding: 40px 80px;
+      margin: 20px 0;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(33,150,243,0.6);
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+    #glass-switch:active {
+      transform: scale(0.95);
+    }
+    .stats {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .items {
+      margin-top: 30px;
+      text-align: left;
+    }
+    .item {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .item button {
+      font-size: 1rem;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+      background: #2196f3;
+      color: white;
+      transition: background 0.3s ease;
+    }
+    .item button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Glass Switch 클릭커 게임</h1>
+  <div class="stats">
+    <div>현재 포인트: <span id="points">0</span></div>
+    <div>클릭당 증가량: <span id="clickPower">1</span></div>
+    <div>초당 자동 증가량: <span id="cps">0</span></div>
+  </div>
+
+  <button id="glass-switch">Glass Switch</button>
+
+  <div class="items">
+    <h2>아이템 상점</h2>
+    <div class="item">
+      <span>Cursor - 클릭 증가량 +1 (가격: <span id="price1">25</span>)</span>
+      <button id="buy1">구매</button>
+    </div>
+    <div class="item">
+      <span>Auto Glass - 초당 +1 (가격: <span id="price2">100</span>)</span>
+      <button id="buy2">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Farm - 초당 +10 (가격: <span id="price3">500</span>)</span>
+      <button id="buy3">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Mine - 초당 +100 (가격: <span id="price4">6500</span>)</span>
+      <button id="buy4">구매</button>
+    </div>
+    <div class="item">
+      <span>Silver Cursor - 클릭 증가량 +2000 (가격: <span id="price5">150000</span>)</span>
+      <button id="buy5">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Factory - 초당 +15000 (가격: <span id="price6">2000000</span>)</span>
+      <button id="buy6">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Lab - 초당 +250000 (가격: <span id="price7">20000000</span>)</span>
+      <button id="buy7">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Temple - 초당 +5,000,000 (가격: <span id="price8">125000000</span>)</span>
+      <button id="buy8">구매</button>
+    </div>
+    <div class="item">
+      <span>Gold Cursor - 클릭 증가량 +2,000,000 (가격: <span id="price9">200000000</span>)</span>
+      <button id="buy9">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass Rocket - 초당 +100,000,000 (가격: <span id="price10">5000000000</span>)</span>
+      <button id="buy10">구매</button>
+    </div>
+    <div class="item">
+      <span>Glass God - 초당 +5,000,000,000 (가격: <span id="price11">100000000000</span>)</span>
+      <button id="buy11">구매</button>
+    </div>
+  </div>
+
+  <script>
+    let points = 0;
+    let clickPower = 1;
+    let cps = 0;
+
+    const pointsEl = document.getElementById('points');
+    const clickPowerEl = document.getElementById('clickPower');
+    const cpsEl = document.getElementById('cps');
+    const glassSwitchBtn = document.getElementById('glass-switch');
+
+    const items = [
+      { id: 1, name: 'Cursor', type: 'click', power: 1, price: 25, priceEl: document.getElementById('price1'), btn: document.getElementById('buy1'), owned: 0 },
+      { id: 2, name: 'Auto Glass', type: 'auto', power: 1, price: 100, priceEl: document.getElementById('price2'), btn: document.getElementById('buy2'), owned: 0 },
+      { id: 3, name: 'Glass Farm', type: 'auto', power: 10, price: 500, priceEl: document.getElementById('price3'), btn: document.getElementById('buy3'), owned: 0 },
+      { id: 4, name: 'Glass Mine', type: 'auto', power: 100, price: 6500, priceEl: document.getElementById('price4'), btn: document.getElementById('buy4'), owned: 0 },
+      { id: 5, name: 'Silver Cursor', type: 'click', power: 2000, price: 150000, priceEl: document.getElementById('price5'), btn: document.getElementById('buy5'), owned: 0 },
+      { id: 6, name: 'Glass Factory', type: 'auto', power: 15000, price: 2000000, priceEl: document.getElementById('price6'), btn: document.getElementById('buy6'), owned: 0 },
+      { id: 7, name: 'Glass Lab', type: 'auto', power: 250000, price: 20000000, priceEl: document.getElementById('price7'), btn: document.getElementById('buy7'), owned: 0 },
+      { id: 8, name: 'Glass Temple', type: 'auto', power: 5000000, price: 125000000, priceEl: document.getElementById('price8'), btn: document.getElementById('buy8'), owned: 0 },
+      { id: 9, name: 'Gold Cursor', type: 'click', power: 2000000, price: 200000000, priceEl: document.getElementById('price9'), btn: document.getElementById('buy9'), owned: 0 },
+      { id: 10, name: 'Glass Rocket', type: 'auto', power: 100000000, price: 5000000000, priceEl: document.getElementById('price10'), btn: document.getElementById('buy10'), owned: 0 },
+      { id: 11, name: 'Glass God', type: 'auto', power: 5000000000, price: 100000000000, priceEl: document.getElementById('price11'), btn: document.getElementById('buy11'), owned: 0 },
+    ];
+
+    function updateButtons() {
+      items.forEach(item => {
+        item.btn.disabled = points < item.price;
+      });
+    }
+
+    function updateUI() {
+      pointsEl.textContent = Math.floor(points).toLocaleString();
+      clickPowerEl.textContent = clickPower.toLocaleString();
+      cpsEl.textContent = cps.toLocaleString();
+      items.forEach(item => {
+        item.priceEl.textContent = item.price.toLocaleString();
+      });
+      updateButtons();
+    }
+
+    glassSwitchBtn.addEventListener('click', () => {
+      points += clickPower;
+      updateUI();
+    });
+
+    items.forEach(item => {
+      item.btn.addEventListener('click', () => {
+        if (points >= item.price) {
+          points -= item.price;
+          item.owned++;
+          if (item.type === 'click') {
+            clickPower += item.power;
+          } else {
+            cps += item.power;
+          }
+          // 가격 20% 증가
+          item.price = Math.floor(item.price * 1.2);
+          updateUI();
+        }
+      });
+    });
+
+    setInterval(() => {
+      points += cps;
+      updateUI();
+    }, 1000);
+
+    updateUI();
+  </script>
+
+</body>
+</html>
