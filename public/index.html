@@ -2,30 +2,51 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>아기자기 Glass Switch 클릭커</title>
+  <title>Glass Switch 클릭커 - 업그레이드 버전</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Baloo 2', cursive;
       background: #fffbf5;
       color: #5a4d41;
-      margin: 0; padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0;
+      padding-top: 60px; /* 점수 박스 공간 확보 */
       min-height: 100vh;
       user-select: none;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
     }
 
-    h1 {
+    /* 점수 박스 - 상단 고정, 100vw */
+    #points {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 60px;
+      background: linear-gradient(135deg, #ffd6cd 0%, #ff9e8c 100%);
+      color: #7c3f2a;
       font-weight: 900;
-      font-size: 2.8rem;
-      margin-bottom: 30px;
-      color: #d36a6a;
-      text-shadow: 1px 1px 2px #f8c8c8;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 1px 1px 3px #f8b9aa;
+      box-shadow: 0 2px 6px rgba(255,150,120,0.4);
+      z-index: 100;
+      user-select: text;
+      font-family: 'Baloo 2', cursive;
     }
 
+    /* 클릭 버튼 중앙 배치 */
     #glass-switch {
       width: 180px;
       height: 90px;
@@ -41,11 +62,11 @@
       transition: transform 0.15s ease;
       border: 2px solid #f6c6b6;
       user-select: none;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       letter-spacing: 1.5px;
       font-family: 'Baloo 2', cursive;
+      z-index: 50;
     }
-
     #glass-switch:active {
       transform: scale(0.95);
       box-shadow: 0 5px 8px rgba(255, 140, 100, 0.9);
@@ -53,48 +74,82 @@
       background: linear-gradient(135deg, #ffb59d 0%, #ff9a70 100%);
     }
 
-    #points {
-      font-size: 3.5rem;
-      font-weight: 900;
-      margin-bottom: 25px;
-      color: #d36a6a;
-      text-shadow: 2px 2px 6px #f9c2c2;
-      user-select: text;
-      font-family: 'Baloo 2', cursive;
-    }
-
+    /* 상점 버튼 중앙 하단에 고정 */
     #shop-toggle-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #f7b5a8;
       color: #754c42;
       border: none;
-      border-radius: 20px;
-      padding: 12px 36px;
-      font-size: 1.3rem;
+      border-radius: 24px;
+      padding: 14px 40px;
+      font-size: 1.4rem;
       cursor: pointer;
-      margin-bottom: 20px;
-      box-shadow: 0 5px 10px rgba(247, 181, 168, 0.7);
+      box-shadow: 0 5px 12px rgba(247, 181, 168, 0.7);
       transition: background-color 0.3s ease;
       user-select: none;
       font-family: 'Baloo 2', cursive;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
     }
-
     #shop-toggle-btn:hover {
       background: #f18d79;
-      box-shadow: 0 7px 14px rgba(241, 141, 121, 0.9);
+      box-shadow: 0 7px 16px rgba(241, 141, 121, 0.9);
     }
 
+    /* 알림 빨간 점 (종 아이콘 오른쪽 위) */
+    #shop-notify {
+      position: relative;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+    }
+
+    #shop-notify svg {
+      width: 100%;
+      height: 100%;
+      fill: #754c42;
+      filter: drop-shadow(0 0 1px #f18d79);
+    }
+
+    #notify-dot {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background: #ff3b3b;
+      border-radius: 50%;
+      box-shadow: 0 0 5px #ff3b3baa;
+      display: none; /* 구매 가능 시 보임 */
+    }
+
+    /* 상점 모달 - 오른쪽 슬라이드 */
     #shop-modal {
-      width: 360px;
-      max-height: 420px;
+      position: fixed;
+      top: 60px;
+      right: 0;
+      width: 350px;
+      height: calc(100vh - 60px);
       background: #fff1ec;
-      border-radius: 20px;
-      box-shadow: 0 10px 20px rgba(247, 181, 168, 0.5);
+      border-radius: 16px 0 0 16px;
+      box-shadow: -6px 0 20px rgba(247, 181, 168, 0.5);
       overflow-y: auto;
       padding: 20px 25px;
-      display: none;
+      display: flex;
       flex-direction: column;
       gap: 14px;
       font-family: 'Baloo 2', cursive;
+      transform: translateX(100%);
+      transition: transform 0.35s ease;
+      z-index: 99;
+    }
+    #shop-modal.open {
+      transform: translateX(0);
     }
 
     .item {
@@ -124,6 +179,9 @@
       user-select: none;
       filter: drop-shadow(0 1px 1px rgba(255,140,100,0.3));
       border-radius: 8px;
+      object-fit: contain;
+      background: #fff4f0;
+      padding: 4px;
     }
     .item .info {
       flex: 1;
@@ -155,13 +213,20 @@
 </head>
 <body>
 
-  <h1>아기자기 Glass Switch 클릭커</h1>
+  <div id="points">0</div>
 
   <button id="glass-switch" title="클릭해서 포인트 획득!">Glass Switch</button>
 
-  <div id="points">0</div>
-
-  <button id="shop-toggle-btn">상점 열기 / 닫기</button>
+  <button id="shop-toggle-btn">
+    <span>상점 열기 / 닫기</span>
+    <span id="shop-notify" aria-label="구매 가능 알림">
+      <!-- 종 아이콘 SVG -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 22c1.1 0 1.99-.9 1.99-2H10c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7a1 1 0 00.7 1.7h12a1 1 0 00.7-1.7L18 16z"/>
+      </svg>
+      <span id="notify-dot"></span>
+    </span>
+  </button>
 
   <div id="shop-modal"></div>
 
@@ -170,6 +235,7 @@
     const glassSwitchBtn = document.getElementById('glass-switch');
     const shopToggleBtn = document.getElementById('shop-toggle-btn');
     const shopModal = document.getElementById('shop-modal');
+    const notifyDot = document.getElementById('notify-dot');
 
     let points = 0;
     let clickPower = 1;
@@ -198,9 +264,14 @@
     }
 
     function updateButtons() {
+      let canBuyAny = false;
       items.forEach(item => {
-        item.btn.disabled = points < item.price;
+        const canBuy = points >= item.price;
+        item.btn.disabled = !canBuy;
+        if (canBuy) canBuyAny = true;
       });
+      // 구매 가능 아이템 있으면 알림 점 보여주기
+      notifyDot.style.display = canBuyAny ? 'block' : 'none';
     }
 
     function updateUI() {
@@ -262,10 +333,10 @@
     }
 
     shopToggleBtn.addEventListener('click', () => {
-      if (shopModal.style.display === 'flex') {
-        shopModal.style.display = 'none';
+      if (shopModal.classList.contains('open')) {
+        shopModal.classList.remove('open');
       } else {
-        shopModal.style.display = 'flex';
+        shopModal.classList.add('open');
       }
     });
 
